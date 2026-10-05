@@ -136,8 +136,10 @@ def test_vdn_checkpoint_fuses_loras_into_native_layout(tmp_path):
     qkv = torch.zeros(24, 6)  # 2 heads x (q, k, v) x head_dim 4, grouped per head
     fc1 = torch.zeros(10, 6)  # native [gate; up]
     adaln = torch.zeros(12, 6)
-    fused = dict(
-        ckpt.apply(
+    # On a GPU host the fused weights come back on the device; compare on the CPU.
+    fused = {
+        name: weight.cpu()
+        for name, weight in ckpt.apply(
             [
                 ("blocks.0.attn.qkv_proj.weight", qkv),
                 ("blocks.0.mlp.fc1.weight", fc1),
@@ -145,7 +147,7 @@ def test_vdn_checkpoint_fuses_loras_into_native_layout(tmp_path):
                 ("blocks.0.mlp.fc2.weight", torch.zeros(6, 5)),
             ]
         )
-    )
+    }
     grouped = fused["blocks.0.attn.qkv_proj.weight"].view(2, 3, 4, 6)
     k_delta = sum(factors["transformer_blocks.0.attn.orig.to_k"]).view(2, 4, 6)
     torch.testing.assert_close(grouped[:, 1], k_delta)
@@ -174,6 +176,11 @@ def test_vdn_checkpoint_validation(tmp_path):
         ckpt.check_request(sampling, "t2va")
     with pytest.raises(OmniClientError, match="serves"):
         ckpt.check_request(OmniDiffusionSamplingParams(num_inference_steps=8), "ref2va")
+    with pytest.raises(OmniClientError, match="Euler"):
+        ckpt.check_request(
+            OmniDiffusionSamplingParams(num_inference_steps=8, extra_args={"sampler": "res_multistep"}), "t2va"
+        )
+    ckpt.check_request(OmniDiffusionSamplingParams(num_inference_steps=8, extra_args={"sampler": "euler"}), "t2va")
 
 
 def test_vdn_checkpoint_detection(tmp_path):

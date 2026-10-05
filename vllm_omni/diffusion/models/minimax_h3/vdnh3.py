@@ -313,6 +313,8 @@ class VDNCheckpoint:
         if int(sampling.num_inference_steps or 0) != steps:
             raise OmniClientError(f"this VDN-H3 checkpoint is a {steps}-step student; set num_inference_steps={steps}")
         extra = sampling.extra_args or {}
+        if extra.get("sampler") not in (None, "euler"):
+            raise OmniClientError("this VDN-H3 checkpoint was distilled with the Euler sampler; omit sampler")
         for key, meta_key in (("flow_shift", "video_shift"), ("audio_flow_shift", "audio_shift")):
             expected = self.metadata.get(meta_key)
             if expected is not None and key in extra and float(extra[key]) != float(expected):

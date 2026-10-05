@@ -60,8 +60,8 @@ curl -sS -X POST "http://127.0.0.1:8000/v1/videos/sync" \
 ```
 
 The checkpoint is a DMD student distilled at 8 steps with H3's default video
-and audio flow shifts of 12 and 3. Requests with a different step count or
-shift are rejected.
+and audio flow shifts of 12 and 3 and the Euler sampler. Requests with a
+different step count, shift, or sampler are rejected.
 
 ## Window layout
 
