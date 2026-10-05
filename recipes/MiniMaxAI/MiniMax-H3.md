@@ -1432,6 +1432,10 @@ Requests use 8 steps and task `t2va` or `fl2va`:
 -F 'extra_params={"task":"t2va","duration":5}'
 ```
 
+FL2VA takes a first frame, a last frame, or both, with the same
+`frame_indices` forms as
+[FL2VA for base H3](#2-fl2va-first-frame-to-video-and-audio).
+
 The student was distilled at 8 steps with H3's default video/audio shifts of
 12/3 and the Euler sampler. A request with another step count, a shift
 override, `sampler=res_multistep`, or a `lora=` field is rejected. Add
@@ -1449,7 +1453,8 @@ VDN-H3 stage-dmd-step-250: fused 259 LoRA targets, loaded 800 branch tensors
 ```
 
 Tensor-parallel sizes 1 (with `--enable-cpu-offload`), 2, and 8 were run end to
-end on NVIDIA H200 (141 GB, NVLink). Cache acceleration, step execution, and
+end on NVIDIA H200 (141 GB, NVLink), with T2VA and with all three FL2VA
+keyframe forms at TP2. Cache acceleration, step execution, and
 latent upscale/refine have not been run with VDN-H3.
 
 Measured on H200 at 1344x768 and 14.375 s (345 frames, about 104k tokens) for

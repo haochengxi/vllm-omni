@@ -59,6 +59,10 @@ curl -sS -X POST "http://127.0.0.1:8000/v1/videos/sync" \
   -o vdn_t2va.mp4
 ```
 
+FL2VA requests with a first frame, a last frame, or both use the same
+fields as for base H3; see the
+[FL2VA examples](https://github.com/vllm-project/vllm-omni/blob/main/recipes/MiniMaxAI/MiniMax-H3.md#2-fl2va-first-frame-to-video-and-audio).
+
 The checkpoint is a DMD student distilled at 8 steps with H3's default video
 and audio flow shifts of 12 and 3 and the Euler sampler. Requests with a
 different step count, shift, or sampler are rejected.
